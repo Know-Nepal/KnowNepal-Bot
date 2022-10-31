@@ -27,6 +27,7 @@ async def register_command(ctx: lightbulb.Context, username: str) -> None:
         )
     else:
         user.github_username = username
+        await user.save()
 
     await ctx.respond(
         embed=hikari.Embed(
