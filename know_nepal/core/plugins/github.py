@@ -2,10 +2,12 @@ import logging
 
 import hikari
 import lightbulb
+import miru
 from know_nepal.config import bot_config
 from know_nepal.core.models import User
-from know_nepal.core.plugins import get_all_committers
+from know_nepal.core.plugins import _chunk, get_all_committers
 from lightbulb.ext import tasks
+from miru.ext import nav
 
 github = lightbulb.Plugin("GitHub", "Plugin that stores GitHub commands")
 logger = logging.getLogger(__name__)
@@ -35,6 +37,33 @@ async def register_command(ctx: lightbulb.Context, username: str) -> None:
     )
 
 
+@github.command
+@lightbulb.add_checks(
+    lightbulb.bot_has_guild_permissions(hikari.Permissions.ADMINISTRATOR)
+)
+@lightbulb.command("list", "List all the registered people!")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def list_command(ctx: lightbulb.Context) -> None:
+    users = await User.all()
+    user_list = [
+        f"**User:** <@{user.id}>\n**GitHub Username:** `{user.github_username}`"
+        for user in users
+    ]
+
+    fields = [
+        hikari.Embed(
+            title="List of Registered Users",
+            description="\n\n".join(user),
+            color=0x00FF00,
+        )
+        for _, user in enumerate(_chunk(user_list, 5))
+    ]
+
+    navigator = nav.NavigatorView(pages=fields)
+    await navigator.send(ctx.interaction)
+    await navigator.wait()
+
+
 @tasks.task(m=1, wait_before_execution=True, auto_start=True)
 async def give_contributor_role():
     try:
@@ -54,6 +83,7 @@ async def give_contributor_role():
 def load(bot: lightbulb.BotApp) -> None:
     bot.add_plugin(github)
     tasks.load(bot)
+    miru.load(bot)
 
 
 def unload(bot: lightbulb.BotApp) -> None:
