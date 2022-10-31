@@ -41,7 +41,7 @@ async def give_contributor_role():
         users = await User.all()
         committers = await get_all_committers()
         for user in users:
-            if user.github_username in committers:
+            if user.github_username.lower() in committers:
                 await github.bot.rest.add_role_to_member(
                     user.guild_id,
                     user.id,

@@ -18,7 +18,7 @@ async def get_all_committers():
             ) as response:
                 data = await response.json()
 
-            commits = [commit["author"]["login"] for commit in data]
+            commits = [commit["author"]["login"].lower() for commit in data]
             all_committers += commits
 
         return list(set(all_committers))
