@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 @lightbulb.command("register", "Register to get contributor role", pass_options=True)
 @lightbulb.implements(lightbulb.SlashCommand)
 async def register_command(ctx: lightbulb.Context, username: str) -> None:
-    user = await User.get_or_none(github_username=username)
+    user = await User.get_or_none(github_username=username, id=ctx.author.id)
     if not user:
         await User.create(
             id=ctx.author.id,
@@ -28,6 +28,37 @@ async def register_command(ctx: lightbulb.Context, username: str) -> None:
     else:
         user.github_username = username
         await user.save()
+
+    await ctx.respond(
+        embed=hikari.Embed(
+            description=f"Successfully registered!\n Username: {username}",
+            color=0x00FF00,
+        ),
+        flags=hikari.MessageFlag.EPHEMERAL,
+    )
+
+
+@github.command
+@lightbulb.add_checks(lightbulb.has_guild_permissions(hikari.Permissions.ADMINISTRATOR))
+@lightbulb.option("user", "The user to add", type=hikari.User)
+@lightbulb.option("username", "User'sgithub username")
+@lightbulb.command(
+    "register-admin", "Admin command to register users", pass_options=True
+)
+@lightbulb.implements(lightbulb.SlashCommand)
+async def register_user_command(
+    ctx: lightbulb.Context, username: str, user: hikari.User
+) -> None:
+    model = await User.get_or_none(github_username=username, id=user.id)
+    if not model:
+        await User.create(
+            id=user.id,
+            github_username=username,
+            guild_id=ctx.guild_id,
+        )
+    else:
+        model.github_username = username
+        await model.save()
 
     await ctx.respond(
         embed=hikari.Embed(
