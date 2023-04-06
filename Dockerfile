@@ -11,5 +11,4 @@ RUN poetry config virtualenvs.create false\
     && poetry install --no-dev --no-interaction --no-ansi
 
 RUN chmod +x entrypoint.sh
-EXPOSE 5432
 ENTRYPOINT [ "sh", "entrypoint.sh" ]
