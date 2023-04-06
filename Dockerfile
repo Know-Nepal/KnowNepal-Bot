@@ -12,4 +12,5 @@ RUN poetry config virtualenvs.create false\
 
 RUN chmod +x entrypoint.sh
 CMD [ "python server.py" ]
+EXPOSE 3000
 ENTRYPOINT [ "sh", "entrypoint.sh" ]
