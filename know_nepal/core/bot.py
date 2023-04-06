@@ -3,8 +3,10 @@ import logging
 
 import hikari
 import lightbulb
-from know_nepal.config import bot_config
 from tortoise import Tortoise
+
+from know_nepal.config import bot_config
+from server import run
 
 from .tortoise_config import tortoise_config
 
@@ -36,6 +38,7 @@ class KnowNepal(lightbulb.BotApp):
 
     async def on_started(self, event: hikari.StartedEvent) -> None:
         logger.info("Bot has started successfully!")
+        await run()
 
     async def on_stopping(self, event: hikari.StoppingEvent) -> None:
         await Tortoise.close_connections()
