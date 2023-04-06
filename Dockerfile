@@ -11,4 +11,5 @@ RUN poetry config virtualenvs.create false\
     && poetry install --no-dev --no-interaction --no-ansi
 
 RUN chmod +x entrypoint.sh
+CMD [ "python server.py" ]
 ENTRYPOINT [ "sh", "entrypoint.sh" ]
